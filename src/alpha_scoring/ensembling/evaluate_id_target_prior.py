@@ -7,10 +7,18 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 
-from audit_oof_candidates import current_ensemble, rank01
+from alpha_scoring.paths import PROJECT_ROOT as ROOT
 
 
-ROOT = Path(__file__).resolve().parent
+def rank01(values: pd.Series | np.ndarray) -> np.ndarray:
+    return pd.Series(values).rank(method="average").to_numpy(np.float64) / len(values)
+
+
+def current_ensemble(runs_dir: Path) -> pd.DataFrame:
+    raise RuntimeError(
+        "OOF audit assembly is not included in this trimmed final pipeline. "
+        f"Cannot build current ensemble from {runs_dir}."
+    )
 
 
 def gaussian_kernel(sigma: float) -> np.ndarray:

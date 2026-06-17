@@ -9,8 +9,8 @@ import pandas as pd
 import polars as pl
 from sklearn.metrics import roc_auc_score
 
-from catboost_baseline import FEATURE_DIR, ROOT, TRAIN_DATA, TRAIN_TARGET
-from catboost_v3 import fit_model
+from alpha_scoring.models.tabular.catboost_baseline import FEATURE_DIR, ROOT, TRAIN_DATA, TRAIN_TARGET
+from alpha_scoring.models.tabular.catboost_v3 import fit_model
 
 
 BIN_COLUMNS = {

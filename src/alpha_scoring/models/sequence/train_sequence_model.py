@@ -12,11 +12,11 @@ from sklearn.metrics import roc_auc_score
 from torch import nn
 from torch.utils.data import DataLoader
 
-from compare_v4_v5_block_validation import assign_blocks, validation_mask
-from sequence_models import SequenceCacheDataset, SequenceClassifier, collate_sequences, load_metadata
+from alpha_scoring.models.tabular.compare_v4_v5_block_validation import assign_blocks, validation_mask
+from alpha_scoring.models.sequence.sequence_models import SequenceCacheDataset, SequenceClassifier, collate_sequences, load_metadata
 
 
-ROOT = Path(__file__).resolve().parent
+from alpha_scoring.paths import PROJECT_ROOT as ROOT
 
 
 def build_temporal_config(

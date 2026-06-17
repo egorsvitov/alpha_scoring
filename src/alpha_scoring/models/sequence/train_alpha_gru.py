@@ -11,7 +11,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 
-from alpha_scoring.model import AlphaGRUClassifier, SequenceDataset, collate_sequences, load_metadata
+from alpha_scoring.models.sequence.alpha_gru import AlphaGRUClassifier, SequenceDataset, collate_sequences, load_metadata
 
 
 def seed_everything(seed: int) -> None:

@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from catboost_baseline import FEATURE_DIR, ROOT, SAMPLE_SUBMISSION, TRAIN_TARGET
-from catboost_v3 import fit_model
-from catboost_v4 import load_features
+from alpha_scoring.models.tabular.catboost_baseline import FEATURE_DIR, ROOT, SAMPLE_SUBMISSION, TRAIN_TARGET
+from alpha_scoring.models.tabular.catboost_v3 import fit_model
+from alpha_scoring.models.tabular.catboost_v4 import load_features
 
 
 def main() -> None:

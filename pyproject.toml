@@ -7,6 +7,17 @@ name = "alpha-scoring"
 version = "0.1.0"
 requires-python = ">=3.10"
 
+[project.scripts]
+alpha-build-tabular-features = "alpha_scoring.features.build_tabular_features:main"
+alpha-build-sequence-cache = "alpha_scoring.features.build_sequence_cache:main"
+alpha-build-tabular-cache = "alpha_scoring.features.build_tabular_cache:main"
+alpha-train-catboost-v4 = "alpha_scoring.models.tabular.train_v4_submission:main"
+alpha-train-catboost-v5 = "alpha_scoring.models.tabular.train_v5_submission:main"
+alpha-train-lightgbm-v5 = "alpha_scoring.models.tabular.train_lightgbm_v5_submission:main"
+alpha-train-sequence = "alpha_scoring.models.sequence.train_sequence_model:main"
+alpha-average-sequence = "alpha_scoring.ensembling.average_sequence_predictions:main"
+alpha-assemble-checkpoint-average = "alpha_scoring.ensembling.assemble_checkpoint_average_submission:main"
+alpha-blend-predictions = "alpha_scoring.ensembling.blend_prediction_files:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
-

@@ -7,8 +7,8 @@ from pathlib import Path
 import lightgbm as lgb
 import pandas as pd
 
-from catboost_baseline import FEATURE_DIR, ROOT, SAMPLE_SUBMISSION, TRAIN_TARGET
-from catboost_v4 import load_features
+from alpha_scoring.models.tabular.catboost_baseline import FEATURE_DIR, ROOT, SAMPLE_SUBMISSION, TRAIN_TARGET
+from alpha_scoring.models.tabular.catboost_v4 import load_features
 
 
 def load_matrix(base_path: Path, v4_path: Path, v5_path: Path) -> pd.DataFrame:

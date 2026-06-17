@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 
-from catboost_baseline import FEATURE_DIR, ROOT, TRAIN_TARGET
-from catboost_v3 import fit_model
+from alpha_scoring.models.tabular.catboost_baseline import FEATURE_DIR, ROOT, TRAIN_TARGET
+from alpha_scoring.models.tabular.catboost_v3 import fit_model
 
 
 def load_variant(addition_paths: list[Path]) -> pd.DataFrame:

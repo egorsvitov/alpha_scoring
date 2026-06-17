@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+ROOT_DIR="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 SERVER_CONFIG="${SERVER_CONFIG:-${ROOT_DIR}/server.env}"
 
 if [[ ! -f "${SERVER_CONFIG}" ]]; then
@@ -28,7 +28,7 @@ SSH_OPTIONS=(
 
 if [[ -n "${REMOTE_PASSWORD:-}" ]]; then
   export DISPLAY="${DISPLAY:-codex-ssh}"
-  export SSH_ASKPASS="${ROOT_DIR}/scripts/server_askpass.sh"
+  export SSH_ASKPASS="${ROOT_DIR}/scripts/server/server_askpass.sh"
   export SSH_ASKPASS_REQUIRE=force
   SSH_OPTIONS+=(
     -o PreferredAuthentications=password
@@ -48,4 +48,3 @@ run_ssh() {
     ssh "${SSH_OPTIONS[@]}" "$@"
   fi
 }
-

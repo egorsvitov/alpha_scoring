@@ -5,10 +5,15 @@ __pycache__/
 server.env
 
 data/
+artifacts/
+features/
 sequence_cache/
+sequence_runs/
+tabular_cache/
 runs/
 submissions/
 *.pt
 *.npy
 *.parquet
 *.csv
+*.log

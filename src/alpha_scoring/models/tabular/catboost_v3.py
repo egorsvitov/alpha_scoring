@@ -8,8 +8,8 @@ import pandas as pd
 from catboost import CatBoostClassifier, Pool
 from sklearn.metrics import roc_auc_score
 
-from catboost_baseline import FEATURE_DIR, ROOT, SAMPLE_SUBMISSION, TEST_DATA, TRAIN_DATA, TRAIN_TARGET, make_train_valid, reduce_memory
-from catboost_v2 import (
+from alpha_scoring.models.tabular.catboost_baseline import FEATURE_DIR, ROOT, SAMPLE_SUBMISSION, TEST_DATA, TRAIN_DATA, TRAIN_TARGET, make_train_valid, reduce_memory
+from alpha_scoring.models.tabular.catboost_v2 import (
     NOMINAL_COLUMNS,
     align_train_test,
     build_nominal_features,

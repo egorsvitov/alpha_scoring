@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 
-from catboost_baseline import FEATURE_DIR, ROOT, TRAIN_TARGET
-from compare_v4_v5_block_validation import assign_blocks, validation_mask
-from catboost_v5 import load_v5_features
+from alpha_scoring.models.tabular.catboost_baseline import FEATURE_DIR, ROOT, TRAIN_TARGET
+from alpha_scoring.models.tabular.compare_v4_v5_block_validation import assign_blocks, validation_mask
+from alpha_scoring.models.tabular.catboost_v5 import load_v5_features
 
 
 def parse_args() -> argparse.Namespace:

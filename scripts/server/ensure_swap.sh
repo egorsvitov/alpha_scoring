@@ -37,7 +37,7 @@ Creating/enabling swap requires root privileges.
 
 Run manually on the server:
 
-  sudo SWAP_SIZE_GB=${SWAP_SIZE_GB} MIN_SWAP_GB=${MIN_SWAP_GB} SWAP_FILE=${SWAP_FILE} bash scripts/ensure_swap.sh
+  sudo SWAP_SIZE_GB=${SWAP_SIZE_GB} MIN_SWAP_GB=${MIN_SWAP_GB} SWAP_FILE=${SWAP_FILE} bash scripts/server/ensure_swap.sh
 
 Then restart the training command.
 EOF

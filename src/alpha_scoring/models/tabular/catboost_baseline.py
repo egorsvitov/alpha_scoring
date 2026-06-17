@@ -9,7 +9,7 @@ from catboost import CatBoostClassifier, Pool
 from sklearn.metrics import roc_auc_score
 
 
-ROOT = Path(__file__).resolve().parent
+from alpha_scoring.paths import PROJECT_ROOT as ROOT
 TRAIN_DATA = ROOT / "train_data.parquet"
 TEST_DATA = ROOT / "test_data.parquet"
 TRAIN_TARGET = ROOT / "train_target.csv"

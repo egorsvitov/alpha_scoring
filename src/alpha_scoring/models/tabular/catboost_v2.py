@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 
-from catboost_baseline import (
+from alpha_scoring.models.tabular.catboost_baseline import (
     FEATURE_DIR,
     ROOT,
     SAMPLE_SUBMISSION,

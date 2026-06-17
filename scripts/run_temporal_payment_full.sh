@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "$(dirname "$0")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+cd "${ROOT_DIR}"
+export PYTHONPATH="${PYTHONPATH:-}:src"
 PY=.venv/bin/python
 RUN=sequence_runs/full100_temporal_payment
 mkdir -p "$RUN"
 
 if [[ ! -f "$RUN/epoch_10.pt" ]]; then
-  "$PY" train_sequence_model.py \
+  "$PY" -m alpha_scoring.models.sequence.train_sequence_model \
     --architecture pooling \
     --payment-encoder transformer \
     --payment-hidden-dim 32 \
@@ -30,7 +33,7 @@ if [[ ! -f "$RUN/epoch_10.pt" ]]; then
 fi
 
 for epoch in 7 8 9 10; do
-  "$PY" train_sequence_model.py \
+  "$PY" -m alpha_scoring.models.sequence.train_sequence_model \
     --predict-test \
     --checkpoint "$RUN/epoch_${epoch}.pt" \
     --batch-size 2048 \
@@ -39,10 +42,10 @@ for epoch in 7 8 9 10; do
     >> "$RUN/predict.log" 2>&1
 done
 
-"$PY" average_sequence_predictions.py "$RUN"/submission_epoch_{7,8,9,10}.csv \
+"$PY" -m alpha_scoring.ensembling.average_sequence_predictions "$RUN"/submission_epoch_{7,8,9,10}.csv \
   --output "$RUN/submission.csv"
 
-"$PY" blend_prediction_files.py \
+"$PY" -m alpha_scoring.ensembling.blend_prediction_files \
   0.887:sequence_runs/blends/submission_full100_hierarchical_temporal.csv \
   0.113:"$RUN/submission.csv" \
   --output sequence_runs/blends/submission_full100_with_temporal_payment.csv

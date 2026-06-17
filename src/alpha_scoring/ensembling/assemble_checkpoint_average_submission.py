@@ -6,10 +6,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from evaluate_id_target_prior import make_prior
+from alpha_scoring.ensembling.evaluate_id_target_prior import make_prior
 
 
-ROOT = Path(__file__).resolve().parent
+from alpha_scoring.paths import PROJECT_ROOT as ROOT
 
 
 def rank01(values: pd.Series | np.ndarray) -> np.ndarray:

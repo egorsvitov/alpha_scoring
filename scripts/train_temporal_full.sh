@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "$(dirname "$0")"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+cd "${ROOT_DIR}"
+export PYTHONPATH="${PYTHONPATH:-}:src"
 
 COMMON_ARGS=(
   --architecture pooling
@@ -26,12 +29,12 @@ COMMON_ARGS=(
 
 mkdir -p sequence_runs/temporal_full_seed271 sequence_runs/temporal_full_seed42
 
-.venv/bin/python train_sequence_model.py "${COMMON_ARGS[@]}" \
+.venv/bin/python -m alpha_scoring.models.sequence.train_sequence_model "${COMMON_ARGS[@]}" \
   --seed 271 \
   --output-dir sequence_runs/temporal_full_seed271 \
   > sequence_runs/temporal_full_seed271/train.log 2>&1
 
-.venv/bin/python train_sequence_model.py "${COMMON_ARGS[@]}" \
+.venv/bin/python -m alpha_scoring.models.sequence.train_sequence_model "${COMMON_ARGS[@]}" \
   --seed 42 \
   --output-dir sequence_runs/temporal_full_seed42 \
   > sequence_runs/temporal_full_seed42/train.log 2>&1

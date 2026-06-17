@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from catboost_baseline import FEATURE_DIR, ROOT, SAMPLE_SUBMISSION, TEST_DATA, TRAIN_TARGET
-from catboost_v3 import fit_model
-from catboost_v4 import build_v4_additions, load_features
-from catboost_v5 import build_v5_additions
+from alpha_scoring.models.tabular.catboost_baseline import FEATURE_DIR, ROOT, SAMPLE_SUBMISSION, TEST_DATA, TRAIN_TARGET
+from alpha_scoring.models.tabular.catboost_v3 import fit_model
+from alpha_scoring.models.tabular.catboost_v4 import build_v4_additions, load_features
+from alpha_scoring.models.tabular.catboost_v5 import build_v5_additions
 
 
 def load_matrix(base_path: Path, v4_path: Path, v5_path: Path) -> pd.DataFrame:
