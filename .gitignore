@@ -1,0 +1,14 @@
+__pycache__/
+.venv/
+.pytest_cache/
+*.egg-info/
+
+data/
+sequence_cache/
+runs/
+submissions/
+*.pt
+*.npy
+*.parquet
+*.csv
+
