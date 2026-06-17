@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+cd "${ROOT_DIR}"
+
 export PYTHONPATH="${PYTHONPATH:-}:src"
+
+bash scripts/check_inputs.sh
 
 python -m alpha_scoring.cache \
   --train-data data/train_data.parquet \
