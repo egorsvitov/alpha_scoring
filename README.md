@@ -6,18 +6,13 @@
 
 ```text
 исходные parquet
+-> tabular features
+-> CatBoost V4/V5 + LightGBM V5
 -> sequence cache
+-> full100 sequence ensemble
+-> id-prior
 -> Alpha-GRU + Payment Transformer
--> предсказание на test
--> rank-blend с базовым full100 id-prior submission
 -> финальный submission
-```
-
-Итоговая формула последнего успешного сабмита:
-
-```text
-0.839 * submission_full100_checkpoint_average_idprior.csv
-+ 0.161 * Alpha-GRU epoch 9 prediction
 ```
 
 Leaderboard ROC-AUC: `0.786643`.
@@ -29,20 +24,11 @@ Leaderboard ROC-AUC: `0.786643`.
 - `train_data.parquet` — тренировочные кредитные истории;
 - `test_data.parquet` — тестовые кредитные истории;
 - `train_target.csv` — целевая переменная для train;
-- `sample_submission.csv` — эталонный порядок `id`;
-- `submission_full100_checkpoint_average_idprior.csv` — предыдущий лучший
-  full100 ensemble submission с `id` target prior.
+- `sample_submission.csv` — эталонный порядок `id`.
 
-Последний файл нужен как базовая сильная модель. Этот репозиторий хранит только
-финальный инкрементальный слой `Alpha-GRU`, поэтому старый исследовательский код
-для CatBoost, LightGBM, Transformer-ансамблей и подбора id-prior сюда не входит.
-
-Готовые сабмиты для сверки лежат в `submissions/`:
-
-- `submission_full100_checkpoint_average_idprior_alpha_gru161.csv` — лучший
-  отправленный вариант, LB `0.786643`;
-- `submission_full100_checkpoint_average_idprior_alpha_gru150.csv` — запасной
-  более консервативный blend.
+Готовые сабмиты, предвычисленные кеши, checkpoints и OOF-файлы не нужны для
+запуска. Все модели обучаются с нуля на `train_data.parquet` и
+`train_target.csv`, затем предсказывают `test_data.parquet`.
 
 Данные, checkpoints, кеши и сабмиты игнорируются git-ом.
 
@@ -71,16 +57,22 @@ bash scripts/run_final.sh
 
 Скрипт выполняет четыре шага:
 
-1. строит sequence cache из `train_data.parquet` и `test_data.parquet`;
-2. обучает `AlphaGRUClassifier` на полном train до `epoch_9`;
-3. считает test prediction для checkpoint `epoch_9.pt`;
-4. делает rank-blend с базовым `submission_full100_checkpoint_average_idprior.csv`.
+1. строит tabular features;
+2. обучает CatBoost V4, CatBoost V5 и LightGBM V5;
+3. строит sequence cache;
+4. обучает full100 sequence ensemble;
+5. собирает checkpoint-averaged base ensemble и добавляет `id-prior`;
+6. обучает финальную `Alpha-GRU` ветку;
+7. делает финальный rank-blend.
 
 На выходе создаются:
 
 - `sequence_cache/`;
-- `runs/full100_alpha_gru_payment/epoch_9.pt`;
-- `runs/full100_alpha_gru_payment/submission_epoch_9.csv`;
+- `features/`;
+- `tabular_cache/`;
+- `sequence_runs/`;
+- `sequence_runs/blends/submission_full100_checkpoint_average_idprior.csv`;
+- `sequence_runs/full100_alpha_gru_payment/submission_epoch_9.csv`;
 - `submissions/submission_alpha_gru161.csv`.
 
 Финальный файл для отправки:
@@ -89,16 +81,11 @@ bash scripts/run_final.sh
 submissions/submission_alpha_gru161.csv
 ```
 
-Если нужно только пересобрать финальный blend из уже готового Alpha-GRU
-prediction, можно запустить:
+Финальная формула последнего шага:
 
-```bash
-PYTHONPATH=src python -m alpha_scoring.blend \
-  --base data/submission_full100_checkpoint_average_idprior.csv \
-  --alpha runs/full100_alpha_gru_payment/submission_epoch_9.csv \
-  --sample data/sample_submission.csv \
-  --alpha-weight 0.161 \
-  --output submissions/submission_alpha_gru161.csv
+```text
+0.839 * sequence_runs/blends/submission_full100_checkpoint_average_idprior.csv
++ 0.161 * sequence_runs/full100_alpha_gru_payment/submission_epoch_9.csv
 ```
 
 ## Запуск на сервере
@@ -136,13 +123,25 @@ pip install -r requirements.txt
 pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu118
 ```
 
-6. Запустите полный пайплайн на сервере:
+6. Проверьте swap. Табличные бустинги могут занимать до `60 ГБ` ОЗУ, поэтому
+   перед запуском нужен активный swap. Серверный запуск делает эту проверку
+   автоматически через `scripts/ensure_swap.sh`. Если у пользователя нет
+   passwordless `sudo`, выполните один раз вручную:
+
+```bash
+sudo SWAP_SIZE_GB=64 MIN_SWAP_GB=60 bash scripts/ensure_swap.sh
+```
+
+По умолчанию создается `/swapfile_alpha_scoring` и добавляется запись в
+`/etc/fstab`.
+
+7. Запустите полный пайплайн на сервере:
 
 ```bash
 bash scripts/run_on_server.sh
 ```
 
-7. Заберите готовый сабмит:
+8. Заберите готовый сабмит:
 
 ```bash
 bash scripts/fetch_submission_from_server.sh
@@ -178,17 +177,21 @@ payment codes
 ## Структура
 
 ```text
-src/alpha_scoring/cache.py   # построение sequence_cache
-src/alpha_scoring/model.py   # Payment Transformer + Alpha-GRU
-src/alpha_scoring/train.py   # train / predict CLI
-src/alpha_scoring/blend.py   # финальный rank-blend
-scripts/run_final.sh         # полный воспроизводящий запуск
-scripts/sync_to_server.sh    # синхронизация кода на сервер
-scripts/run_on_server.sh     # запуск команды на сервере
+scripts/run_final.sh                 # полный self-contained запуск
+scripts/ensure_swap.sh               # проверка/создание swap-файла на сервере
+build_tabular_features.py            # построение табличных признаков
+catboost_*.py / train_*submission.py # табличные модели
+build_sequence_cache.py              # sequence cache
+train_sequence_model.py              # sequence-модели и Alpha-GRU
+assemble_checkpoint_average_submission.py
+blend_prediction_files.py
+scripts/sync_to_server.sh            # синхронизация кода на сервер
+scripts/run_on_server.sh             # запуск команды на сервере
 ```
 
 ## Примечания
 
 - Исходные данные, кеши, checkpoints и сабмиты не коммитятся.
+- На вход полного запуска не подаются готовые prediction/submission-файлы.
 - Для обучения требуется CUDA GPU.
 - Порядок `id` в финальном файле проверяется по `sample_submission.csv`.

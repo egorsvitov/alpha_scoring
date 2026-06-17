@@ -10,7 +10,6 @@ required=(
   data/test_data.parquet
   data/train_target.csv
   data/sample_submission.csv
-  data/submission_full100_checkpoint_average_idprior.csv
 )
 
 missing=0

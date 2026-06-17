@@ -15,6 +15,4 @@ rsync -avP \
   "${ROOT_DIR}/data/test_data.parquet" \
   "${ROOT_DIR}/data/train_target.csv" \
   "${ROOT_DIR}/data/sample_submission.csv" \
-  "${ROOT_DIR}/data/submission_full100_checkpoint_average_idprior.csv" \
   "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}/data/"
-
