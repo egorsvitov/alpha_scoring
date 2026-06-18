@@ -120,13 +120,16 @@ def add_overdue_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def read_source(path: Path, max_rows: int | None = None) -> pd.DataFrame:
-    print(f"Read parquet: {path}")
+    print(f"Read parquet: {path}", flush=True)
     df = pd.read_parquet(path)
     if max_rows is not None:
         df = df.head(max_rows).copy()
-        print(f"Use first rows only: {len(df)}")
+        print(f"Use first rows only: {len(df)}", flush=True)
+    print(f"Raw shape: {df.shape}. Add row-level payment features", flush=True)
     df = add_payment_features(df)
+    print("Add row-level overdue features", flush=True)
     df = add_overdue_features(df)
+    print("Reduce source memory", flush=True)
     return reduce_memory(df)
 
 
@@ -184,39 +187,43 @@ def build_features(
     max_rows: int | None = None,
 ) -> pd.DataFrame:
     if cache_path.exists() and not force:
-        print(f"Load cached features: {cache_path}")
+        print(f"Load cached features: {cache_path}", flush=True)
         return pd.read_parquet(cache_path)
 
+    print(f"Build aggregate features from source: {path}", flush=True)
     df = read_source(path, max_rows=max_rows).sort_values(["id", "rn"])
     nominal_cols = [col for col in NOMINAL_COLUMNS if col in df.columns]
     numeric_cols = [col for col in df.columns if col not in {"id", "rn", *nominal_cols}]
     grouped = df.groupby("id", sort=False)
-    print(f"Rows: {len(df)}, ids: {df['id'].nunique()}, numeric columns: {len(numeric_cols)}")
+    print(f"Rows: {len(df)}, ids: {df['id'].nunique()}, numeric columns: {len(numeric_cols)}", flush=True)
 
-    print("Build numeric aggregations")
+    print("Build numeric aggregations", flush=True)
     features = grouped[numeric_cols].agg(["mean", "sum", "min", "max", "std", "nunique"])
     features.columns = flatten_columns(features.columns)
+    print(f"Numeric aggregations shape: {features.shape}", flush=True)
 
-    print("Build nominal count/share features")
+    print("Build nominal count/share features", flush=True)
     features = features.join(build_nominal_features(df, grouped), how="left")
+    print(f"After nominal features shape: {features.shape}", flush=True)
 
-    print("Add rn/count features")
+    print("Add rn/count features", flush=True)
     rn_features = grouped["rn"].agg(["count", "min", "max", "mean"])
     rn_features.columns = ["products_count", "rn_min", "rn_max", "rn_mean"]
     features = features.join(rn_features)
 
-    print("Add first/last numeric product features")
+    print("Add first/last numeric product features", flush=True)
     first_rows = df.drop_duplicates("id", keep="first").set_index("id")[numeric_cols]
     first_rows.columns = [f"first_{col}" for col in numeric_cols]
     last_rows = df.drop_duplicates("id", keep="last").set_index("id")[numeric_cols]
     last_rows.columns = [f"last_{col}" for col in numeric_cols]
     features = features.join(first_rows).join(last_rows)
 
+    print("Finalize and write feature parquet", flush=True)
     features = features.reset_index()
     features = reduce_memory(features.replace([np.inf, -np.inf], np.nan))
     FEATURE_DIR.mkdir(exist_ok=True)
     features.to_parquet(cache_path, index=False)
-    print(f"Saved features: {cache_path}, shape={features.shape}")
+    print(f"Saved features: {cache_path}, shape={features.shape}", flush=True)
     return features
 
 

@@ -4,14 +4,14 @@ __pycache__/
 *.egg-info/
 server.env
 
-data/
-artifacts/
-features/
-sequence_cache/
-sequence_runs/
-tabular_cache/
-runs/
-submissions/
+/data/
+/artifacts/
+/features/
+/sequence_cache/
+/sequence_runs/
+/tabular_cache/
+/runs/
+/submissions/
 *.pt
 *.npy
 *.parquet

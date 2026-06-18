@@ -5,7 +5,8 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 cd "${ROOT_DIR}"
 
-export PYTHONPATH="${PYTHONPATH:-}:src"
+export PYTHONPATH="${ROOT_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}"
+export PYTHONUNBUFFERED="${PYTHONUNBUFFERED:-1}"
 PY="${PY:-.venv/bin/python}"
 RUNS=sequence_runs
 STATUS="$RUNS/self_contained_pipeline"
@@ -60,7 +61,7 @@ bash scripts/check_inputs.sh
 link_inputs
 
 log_step "build_tabular_features_start"
-"$PY" -m alpha_scoring.features.build_tabular_features > "$STATUS/build_tabular_features.log" 2>&1
+"$PY" -m alpha_scoring.features.build_tabular_features --force > "$STATUS/build_tabular_features.log" 2>&1
 log_step "build_tabular_features_done"
 
 log_step "train_tabular_models_start"
